@@ -44,6 +44,17 @@ public class Bookstore {
             System.exit(1);
         }
 
+        // Create a Bookstore instance and initialize the database
+        Bookstore test = null;
+        try {
+            // Create a Bookstore instance and initialize the database
+            test = new Bookstore();
+            test.initDatabase(Username, mysqlPassword);
+        } catch (SQLException e) {
+            System.out.println("Error connecting to the database: " + e.getMessage());
+            System.exit(1);
+        }
+
         // Prompt the user for input
         Scanner scanner = new Scanner(System.in); // Create a Scanner object to read user input
         System.out.print("Enter your choice: ");
@@ -54,6 +65,11 @@ public class Bookstore {
             case "1":
                 System.out.println("You selected: Find all available (not purchased) copies at a given bookstore");
                 // Call the corresponding method here
+                // Prompt for bookstore name
+                System.out.print("Enter the bookstore name: ");
+                String bookstoreName = scanner.nextLine(); // Read the bookstore name from user input
+                // Call the findCopies method with the provided bookstore name
+                test.findCopies(bookstoreName);
                 break;
             case "2":
                 System.out.println("You selected: Purchase an available copy from a particular bookstore");
@@ -78,16 +94,6 @@ public class Bookstore {
             default:
                 System.out.println("Invalid choice. Please try again.");
                 break;
-        }
-
-        Bookstore test = null;
-        try {
-            // Create a Bookstore instance and initialize the database
-            test = new Bookstore();
-            test.initDatabase(Username, mysqlPassword);
-        } catch (SQLException e) {
-            System.out.println("Error connecting to the database: " + e.getMessage());
-            System.exit(1);
         }
         // Run a bunch of queries
 
@@ -191,11 +197,12 @@ public class Bookstore {
     // Find All available (not purchased) copies at a given bookstore
     public void findCopies(String bookstoreName) {
         // SQL query to find all available copies at a given bookstore
-        String q = "SELECT b.book_id, b.title, c.copy_id " +
+        String q = "SELECT b.bookID, b.bookName, c.copyID " +
                 "FROM Book b " +
-                "JOIN Copy c ON b.book_id = c.book_id " +
-                "JOIN Bookstore bs ON c.bookstore_id = bs.bookstore_id " +
-                "WHERE bs.name = '" + bookstoreName + "' AND c.purchased = 0";
+                "JOIN Copy c ON b.bookID = c.bookID " +
+                "JOIN Bookstore bs ON c.bookstoreID = bs.bookstoreID " +
+                "JOIN Purchase p ON c.copyID = p.copyID " + 
+                "WHERE bs.bookstoreName = '" + bookstoreName + "'";
         query(q);
     }
 
