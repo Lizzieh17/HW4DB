@@ -25,8 +25,8 @@ public class Bookstore {
 
     // The main program", that tests the methods
     public static void main(String[] args) throws SQLException {
-        String Username = "lal013";
-        String mysqlPassword = "ooveiz0M";
+        String Username = "seh051";
+        String mysqlPassword = "Eiza0eiv";
 
         // Print menu
         System.out.println("Welcome to the Bookstore Database!");
@@ -43,11 +43,11 @@ public class Bookstore {
             System.out.println("This program does not take any command line arguments.");
             System.exit(1);
         }
-        
+
         // Prompt the user for input
         Scanner scanner = new Scanner(System.in); // Create a Scanner object to read user input
         System.out.print("Enter your choice: ");
-        String userInput = scanner.nextLine(); // Read the user's input
+        String userInput = scanner.nextLine();
 
         // Process the input
         switch (userInput) {
@@ -186,6 +186,17 @@ public class Bookstore {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    // Find All available (not purchased) copies at a given bookstore
+    public void findCopies(String bookstoreName) {
+        // SQL query to find all available copies at a given bookstore
+        String q = "SELECT b.book_id, b.title, c.copy_id " +
+                "FROM Book b " +
+                "JOIN Copy c ON b.book_id = c.book_id " +
+                "JOIN Bookstore bs ON c.bookstore_id = bs.bookstore_id " +
+                "WHERE bs.name = '" + bookstoreName + "' AND c.purchased = 0";
+        query(q);
     }
 
     // init and testing

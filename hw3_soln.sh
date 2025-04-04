@@ -1,8 +1,6 @@
-# user=lal013
-# password=ooveiz0M
 
 mysql <<EOFMYSQL
-use MYUSERNAME;
+use seh051;
 show tables;
 
 DROP TABLE IF EXISTS Bookstore;
@@ -10,7 +8,7 @@ DROP TABLE IF EXISTS Book;
 DROP TABLE IF EXISTS Copy;
 DROP TABLE IF EXISTS Purchase;
 
-#Create Tables:
+
 CREATE TABLE Bookstore(
 bookstoreID INT PRIMARY KEY, 
 bookstoreName CHAR(25) NOT NULL, 
@@ -43,9 +41,8 @@ CREATE TABLE Purchase(
   FOREIGN KEY (copyID) REFERENCES Copy(copyID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-#Add data:
 
-#Bookstore:
+
 INSERT INTO
     Bookstore (bookstoreID, bookstoreName, state, city)
 VALUES
@@ -53,7 +50,7 @@ VALUES
     (5, 'Dickson Street Bookshop', 'AR', 'Fayetteville'),
     (11, 'Pearl''s Books', 'AR', 'Fayetteville');
 
-#Book:
+
 INSERT INTO Book (bookID, bookName, author, publicationDate, type)
 VALUES
     (9, 'Brave New World', 'Aldous Huxley', '1932-02-04', 'fic'),
@@ -67,7 +64,7 @@ VALUES
     (29, 'Unbroken', 'Laura Hillenbrand', '2010-11-16', 'non'),
     (42, 'The Return of The King', 'J. R. R. Tolkien', '1955-10-20', 'fic');
 
-#Copy:
+
 INSERT INTO Copy (copyID, bookstoreID, bookID, price)
 VALUES
     (0, 0, 42, 25.00),
@@ -82,8 +79,7 @@ VALUES
     (9, 11, 10, 15.00),
     (10, 11, 9, 12.00),
     (11, 11, 15, 10.00);
-
-#Purchase: 
+ 
 INSERT INTO Purchase (purchaseId, copyID, date, time)
 VALUES
     (0, 6, '2025-01-15', '10:32'),
@@ -95,100 +91,4 @@ VALUES
     (6, 10, '2025-02-09', '16:18'),
     (7, 7, '2025-02-14', '23:00'),
     (8, 9, '2025-02-21', '20:05');
-
-Tasks:
-
-#1:
-SHOW TABLES;
-
-#2:
-DESC Bookstore;
-DESC Book;
-DESC Copy;
-DESC Purchase;
-
-#3:
-SHOW CREATE TABLE Bookstore;
-SHOW CREATE TABLE Book;
-SHOW CREATE TABLE Copy;
-SHOW CREATE TABLE Purchase;
-
-#4:
-SELECT COLUMN_NAME, CONSTRAINT_NAME, REFERENCED_COLUMN_NAME, REFERENCED_TABLE_NAME
-FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
-WHERE REFERENCED_COLUMN_NAME IS NOT NULL AND CONSTRAINT_SCHEMA = 'lal013';
-
-#5:
-SELECT * FROM Bookstore;
-SELECT * FROM Book;
-SELECT * FROM Copy;
-SELECT * FROM Purchase;
-
-#6:
-SELECT Bookstore.bookstoreName, Bookstore.city 
-FROM Bookstore
-JOIN Copy ON Bookstore.bookstoreID = Copy.bookstoreID
-JOIN Book ON Copy.bookID = Book.bookID
-WHERE Book.bookName = 'To Kill a Mockingbird';
-
-#7:
-SELECT 
-	Book.bookName, 
-	Bookstore.bookstoreName, 
-	Bookstore.city, 
-	Bookstore.state, 
-	Copy.price
-FROM Copy
-JOIN Book ON Copy.bookID = Book.bookID
-JOIN Bookstore ON Copy.bookstoreID = Bookstore.bookstoreID
-WHERE Bookstore.state = 'AR'
-ORDER BY Copy.price;
-
-#8:
-SELECT
-	Bookstore.bookstoreName,
-	Bookstore.city,
-	Bookstore.state,
-	COUNT(Copy.copyID) AS numberOfItems,
-	AVG(Copy.price) AS averagePrice
-FROM Copy
-JOIN Bookstore ON Copy.bookstoreID = Bookstore.bookstoreID
-GROUP BY Bookstore.bookstoreName, Bookstore.city, Bookstore.state;
-
-#9:
-SELECT
-	COUNT(Purchase.purchaseID) AS numberOfPurchases,
-	AVG(Copy.price) AS averageBasePrice,
-	SUM(Copy.price) AS totalBasePrice,
-	SUM(Copy.price) * 1.15 AS totalPriceWithTax
-FROM Purchase
-JOIN Copy ON Purchase.copyID = Copy.copyID
-JOIN Bookstore ON Copy.bookstoreID = Bookstore.bookstoreID
-WHERE Bookstore.bookstoreName = 'Pearl''s Books';
-
-# 10:
-SELECT
-	COUNT(Purchase.purchaseID) AS numberOfPurchases,
-	AVG(Copy.price) AS averageBasePrice,
-	SUM(Copy.price) AS totalBasePrice,
-	SUM(Copy.price) * 1.15 AS totalPriceWithTax
-FROM Purchase
-JOIN Copy ON Purchase.copyID = Copy.copyID
-WHERE Purchase.date <= '2025-01-31' AND Purchase.date >= '2025-01-01';
-
-#11:
-UPDATE Bookstore
-SET Bookstore.bookstoreID = 1
-WHERE Bookstore.bookstoreID = 0;
-SELECT * FROM Bookstore;
-SELECT * FROM Copy;
-
-#12:
-DELETE FROM Book
-WHERE Book.bookID = 9;
-SELECT * FROM Book;
-SELECT * FROM Copy;
-SELECT * FROM Purchase;
-
-
 EOFMYSQL
