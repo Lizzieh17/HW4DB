@@ -7,9 +7,12 @@
  *  javac *.java
  *  java -cp .:mysql-connector-java-5.1.40-bin.jar Bookstore
  *  */
-
 import java.sql.*;
 import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 
 public class Bookstore {
 
@@ -137,8 +140,21 @@ public class Bookstore {
         statement.close();
     }
 
-    // Execute an SQL query passed in as a String parameter
-    // and print the resulting relation
+    public String getCurrentTime(){
+        LocalDateTime currentTime = LocalDateTime.now();
+        DateTimeFormatter formatterTime = DateTimeFormatter.ofPattern("HH:mm");
+        String formattedTime = currentTime.format(formatterTime);
+        return formattedTime;
+    }
+
+    public String getCurrentDate(){
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formatteredDate = currentDate.format(formatterDate);
+        return formatteredDate;
+    }
+
+    // Execute an SQL query passed in as a String parameter and print the resulting relation
     public void query(String q) {
         try {
             ResultSet resultSet = statement.executeQuery(q);
@@ -150,8 +166,7 @@ public class Bookstore {
         }
     }
 
-    // Print the results of a query with attribute names on the first line
-    // Followed by the tuples, one per line
+    // Print the results of a query with attribute names on the first line. Followed by the tuples, one per line
     public void print(ResultSet resultSet) throws SQLException {
         ResultSetMetaData metaData = resultSet.getMetaData();
         int numColumns = metaData.getColumnCount();
@@ -206,10 +221,10 @@ public class Bookstore {
         query(q);
     }
 
-    // init and testing
-    // Assumes that the tables are already created
-    public void initDatabase(String Username, String Password) throws SQLException {
 
+
+    // init and testing - Assumes that the tables are already created
+    public void initDatabase(String Username, String Password) throws SQLException {
         connect(Username, Password);
         // create a statement to hold mysql queries
         statement = connection.createStatement();
