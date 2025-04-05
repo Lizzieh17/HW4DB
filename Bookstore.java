@@ -63,6 +63,9 @@ public class Bookstore {
         System.out.print("Enter your choice: ");
         String userInput = scanner.nextLine();
 
+        int bookID, purchaseID;
+        String bookName, author, publicationDate, type, bookstoreName;
+
         // Process the input
         switch (userInput) {
             case "1":
@@ -70,25 +73,53 @@ public class Bookstore {
                 // Call the corresponding method here
                 // Prompt for bookstore name
                 System.out.print("Enter the bookstore name: ");
-                String bookstoreName = scanner.nextLine(); // Read the bookstore name from user input
+                bookstoreName = scanner.nextLine(); // Read the bookstore name from user input
                 // Call the findCopies method with the provided bookstore name
+
                 test.findCopies(bookstoreName);
                 break;
             case "2":
                 System.out.println("You selected: Purchase an available copy from a particular bookstore");
                 // Call the corresponding method here
+                System.out.println("Enter the bookstore name: ");
+                bookstoreName = scanner.nextLine(); 
+                System.out.println("Enter the book name: ");
+                bookName = scanner.nextLine();
+
+                test.purchcaseCopy(bookstoreName, bookName);
                 break;
             case "3":
                 System.out.println("You selected: List all purchases for a particular bookstore");
                 // Call the corresponding method here
+                System.out.println("Enter the bookstore name: ");
+                bookstoreName = scanner.nextLine(); 
+
+                test.listPurchases(bookstoreName);
                 break;
             case "4":
                 System.out.println("You selected: Cancel a purchase");
                 // Call the corresponding method here
+                System.out.println("Enter the purchase id: ");
+                purchaseID = scanner.nextInt(); 
+
+                test.cancelPurchase(purchaseID);
                 break;
             case "5":
                 System.out.println("You selected: Add a new book for a bookstore");
                 // Call the corresponding method here
+                System.out.println("Enter the book id: ");
+                bookID = scanner.nextInt(); 
+                scanner.nextLine();
+                System.out.println("Enter the book name: ");
+                bookName = scanner.nextLine(); 
+                System.out.println("Enter the author: ");
+                author = scanner.nextLine(); 
+                System.out.println("Enter the publication date(YYYY-MM-DD): ");
+                publicationDate = scanner.nextLine(); 
+                System.out.println("Enter the book type: ");
+                type = scanner.nextLine(); 
+
+                test.addBook(bookID, bookName, author, publicationDate, type);
                 break;
             case "6":
                 System.out.println("You selected: Quit");
@@ -98,25 +129,6 @@ public class Bookstore {
                 System.out.println("Invalid choice. Please try again.");
                 break;
         }
-        // Run a bunch of queries
-
-        // System.out.println("\nTesting select:");
-        // test.query("SELECT * FROM DEPT");
-
-        // System.out.println("\nTesting insert of dept MATH:");
-        // test.insert ("DEPT", "'MATH', 'Mathematics', 309, 'SCEN'");
-        // test.query("SELECT * FROM DEPT WHERE DEPT_CODE = 'MATH';");
-
-        // System.out.println("\nTesting delete of dept MATH:");
-        // test.statement.executeUpdate("DELETE FROM DEPT WHERE DEPT_CODE = 'MATH';");
-        // test.query("SELECT * FROM DEPT WHERE DEPT_CODE = 'MATH';");
-
-        // System.out.println("\nTesting update of professor name :");
-        // test.query("SELECT * FROM PROFESSOR WHERE PROF_ID = 123456;");
-        // test.statement.executeUpdate("Update PROFESSOR set PROF_NAME = 'Susan Dyer'
-        // WHERE PROF_ID = 123456;");
-        // test.query("SELECT * FROM PROFESSOR WHERE PROF_ID = 123456;");
-
         // Disconnect
         test.disConnect();
         // Close the scanner
@@ -221,6 +233,27 @@ public class Bookstore {
         query(q);
     }
 
+    public void purchcaseCopy(String bookstoreName, String bookName){
+        String q = null;
+        query(q);
+    }
+
+
+    public void listPurchases(String bookstoreName){
+        String q = null;
+        query(q);
+    }
+
+    
+    public void cancelPurchase(int purchaseID){
+        String q = null;
+        query(q);
+    }
+
+    public void addBook(int bookID, String bookName, String author, String publicationDate, String type){
+        String q = null;
+        query(q);
+    }
 
 
     // init and testing - Assumes that the tables are already created
