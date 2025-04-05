@@ -28,8 +28,8 @@ public class Bookstore {
 
     // The main program", that tests the methods
     public static void main(String[] args) throws SQLException {
-        String Username = "seh051";
-        String mysqlPassword = "Eiza0eiv";
+        String Username = "lal013";
+        String mysqlPassword = "ooveiz0M";
 
         // Print menu
         System.out.println("Welcome to the Bookstore Database!");
@@ -63,8 +63,8 @@ public class Bookstore {
         System.out.print("Enter your choice: ");
         String userInput = scanner.nextLine();
 
-        int bookID, purchaseID;
-        String bookName, author, publicationDate, type, bookstoreName;
+        int purchaseID;
+        String bookName, bookstoreName, city;
 
         // Process the input
         switch (userInput) {
@@ -107,19 +107,13 @@ public class Bookstore {
             case "5":
                 System.out.println("You selected: Add a new book for a bookstore");
                 // Call the corresponding method here
-                System.out.println("Enter the book id: ");
-                bookID = scanner.nextInt(); 
-                scanner.nextLine();
-                System.out.println("Enter the book name: ");
-                bookName = scanner.nextLine(); 
-                System.out.println("Enter the author: ");
-                author = scanner.nextLine(); 
-                System.out.println("Enter the publication date(YYYY-MM-DD): ");
-                publicationDate = scanner.nextLine(); 
-                System.out.println("Enter the book type: ");
-                type = scanner.nextLine(); 
+                System.out.println("Enter the book store name: ");
+                bookstoreName = scanner.nextLine();
+                System.out.println("Enter the city: ");
+                city = scanner.nextLine(); 
 
-                test.addBook(bookID, bookName, author, publicationDate, type);
+                //System.out.println(test.getBookstoreID(bookstoreName, city));
+                test.addBook(bookstoreName, city);
                 break;
             case "6":
                 System.out.println("You selected: Quit");
@@ -173,6 +167,17 @@ public class Bookstore {
             System.out.println("---------------------------------");
             System.out.println("Query: \n" + q + "\n\nResult: ");
             print(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(String q) {
+        try {
+            int result = statement.executeUpdate(q);
+            System.out.println("---------------------------------");
+            System.out.println("Query: \n" + q + "\n\nResult: ");
+            System.out.println(result + "rows were affected");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -235,9 +240,9 @@ public class Bookstore {
 
     public void purchcaseCopy(String bookstoreName, String bookName){
         String q = null;
+
         query(q);
     }
-
 
     public void listPurchases(String bookstoreName){
         String q = null;
@@ -250,10 +255,82 @@ public class Bookstore {
         query(q);
     }
 
-    public void addBook(int bookID, String bookName, String author, String publicationDate, String type){
-        String q = null;
-        query(q);
+    public void addBook(String bookstoreName, String city){
+        if(!this.bookstoreExsis(bookstoreName, city)){
+            return;
+        }
+        else {
+            Scanner scan = new Scanner(System.in);
+            double price;
+            int bookID, copyID;
+            int bookstoreID = this.getBookstoreID(bookstoreName, city);
+            String bookName, author, publicationDate, type;
+            
+            System.out.println("Please put the book you want to add:");
+            System.out.println("Enter the book id: ");
+            bookID = scan.nextInt();
+            scan.nextLine();
+            System.out.println("Enter the book name: ");
+            bookName = scan.nextLine(); 
+            System.out.println("Enter the author: ");
+            author = scan.nextLine(); 
+            System.out.println("Enter the publication date(YYYY-MM-DD): ");
+            publicationDate = scan.nextLine(); 
+            System.out.println("Enter the book type: ");
+            type = scan.nextLine(); 
+            System.out.println("Enter the copy id: ");
+            copyID = scan.nextInt();
+            scan.nextLine();
+            System.out.println("Enter the copy price: ");
+            price = scan.nextDouble();
+            scan.nextLine();
+
+            String q1 = "INSERT INTO Book (bookID, bookName, author, publicationDate, type)" +
+                        "VALUES(" + bookID + ", '" + bookName + "', '" + author + "', '" + publicationDate + "', '" + type + "')";
+            update(q1);
+            
+            String q2 = "INSERT INTO Copy (copyID, bookstoreID, bookID, price)" +
+                        "VALUES(" + copyID + ", " + bookstoreID + ", " + bookID + ", " + price + ")";
+            update(q2);
+            
+            scan.close();
+        }
     }
+
+    public boolean bookstoreExsis(String bookstoreName, String city){
+        String q = "SELECT COUNT(*) FROM Bookstore WHERE bookstoreName = '" + bookstoreName + "' AND city = '" + city + "';";
+        try {
+            ResultSet resultSet = statement.executeQuery(q);
+            if(resultSet.next()){
+                return resultSet.getInt(1) > 0;
+            }
+            else{
+                System.out.println("Couldn't find bookstore");
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public int getBookstoreID(String bookstoreName, String city){
+        String q = "SELECT bookstoreID FROM Bookstore WHERE bookstoreName = '" + bookstoreName + "' AND city = '" + city + "';";
+        try {
+            ResultSet resultSet = statement.executeQuery(q);
+            if(resultSet.next()){
+                return resultSet.getInt("bookstoreID");
+            }
+            else{
+                System.out.println("Couldn't find bookstoreID");
+                return -1;
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+    
 
 
     // init and testing - Assumes that the tables are already created
