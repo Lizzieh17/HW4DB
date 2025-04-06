@@ -31,8 +31,10 @@ public class Bookstore {
 
     // The main program", that tests the methods
     public static void main(String[] args) throws SQLException {
-        String Username = "lal013";
-        String mysqlPassword = "ooveiz0M";
+        // String Username = "lal013";
+        // String mysqlPassword = "ooveiz0M";
+        String Username = "seh051";
+        String mysqlPassword = "Eiza0eiv";
 
         // Print menu
         System.out.println("Welcome to the Bookstore Database!");
@@ -75,14 +77,33 @@ public class Bookstore {
 
                     System.out.println("Enter the bookstore name: ");
                     bookstoreName = scanner.nextLine();
-
-                    test.findCopies(bookstoreName);
+                    while (bookstoreName.isEmpty()) {
+                        System.out.println("Bookstore name cannot be empty. Please try again.");
+                        System.out.print("Enter the bookstore name: ");
+                        bookstoreName = scanner.nextLine();
+                    }
+                    if (bookstoreName.contains("'")) {
+                        bookstoreName = bookstoreName.replace("'", "''"); // Handle single quotes in input to avoid SQL injection
+                    }
+                    System.out.println("Enter the city: ");
+                    city = scanner.nextLine(); 
+                    while (city.isEmpty()) {
+                        System.out.println("City cannot be empty. Please try again.");
+                        System.out.print("Enter the city: ");
+                        city = scanner.nextLine();
+                    }
+                    test.findCopies(bookstoreName,city);
                     break;
                 case "2":
                     System.out.println("You selected: Purchase an available copy from a particular bookstore");
 
                     System.out.println("Enter the book name: ");
                     bookName = scanner.nextLine();
+                    while (bookName.isEmpty()) {
+                        System.out.println("Book name cannot be empty. Please try again.");
+                        System.out.print("Enter the book name: ");
+                        bookName = scanner.nextLine();
+                    }
 
                     test.purchcaseCopy(bookName);
                     break;
@@ -91,8 +112,21 @@ public class Bookstore {
 
                     System.out.println("Enter the bookstore name: ");
                     bookstoreName = scanner.nextLine(); 
+                    while (bookstoreName.isEmpty()) {
+                        System.out.println("Bookstore name cannot be empty. Please try again.");
+                        System.out.print("Enter the bookstore name: ");
+                        bookstoreName = scanner.nextLine();
+                    }
+                    if (bookstoreName.contains("'")) {
+                        bookstoreName = bookstoreName.replace("'", "''"); // Handle single quotes in input to avoid SQL injection
+                    }
                     System.out.println("Enter the city: ");
                     city = scanner.nextLine(); 
+                    while (city.isEmpty()) {
+                        System.out.println("City cannot be empty. Please try again.");
+                        System.out.print("Enter the city: ");
+                        city = scanner.nextLine();
+                    }
 
                     test.listPurchases(bookstoreName, city);
                     break;
@@ -106,8 +140,21 @@ public class Bookstore {
 
                     System.out.println("Enter the book store name: ");
                     bookstoreName = scanner.nextLine();
+                    while (bookstoreName.isEmpty()) {
+                        System.out.println("Bookstore name cannot be empty. Please try again.");
+                        System.out.print("Enter the bookstore name: ");
+                        bookstoreName = scanner.nextLine();
+                    }
+                    if (bookstoreName.contains("'")) {
+                        bookstoreName = bookstoreName.replace("'", "''"); // Handle single quotes in input to avoid SQL injection
+                    }
                     System.out.println("Enter the city: ");
                     city = scanner.nextLine(); 
+                    while (city.isEmpty()) {
+                        System.out.println("City cannot be empty. Please try again.");
+                        System.out.print("Enter the city: ");
+                        city = scanner.nextLine();
+                    }
 
                     test.addBook(bookstoreName, city);
                     break;
@@ -121,7 +168,8 @@ public class Bookstore {
                     break;
             }
 
-            System.out.println("\nWelcome to the Bookstore Database!");
+            System.out.println("\n-------------------------------------------");
+            System.out.println("Welcome to the Bookstore Database!");
             System.out.println("\nAvailable operations:");
             System.out.println("1) Find all available (not purchased) copies at a given bookstore");
             System.out.println("2) Purchase an available copy from a particular bookstore");
@@ -175,6 +223,10 @@ public class Bookstore {
         try {
             ResultSet resultSet = statement.executeQuery(q);
             System.out.println("---------------------------------");
+            if (!resultSet.next()) { // Handle the case where no results are returned
+                System.out.println("No results found.");
+                return;
+            }
             System.out.println("Query: \n" + q + "\n\nResult: ");
             print(resultSet);
         } catch (SQLException e) {
@@ -205,24 +257,28 @@ public class Bookstore {
     // Print the attribute names
     public void printHeader(ResultSetMetaData metaData, int numColumns) throws SQLException {
         for (int i = 1; i <= numColumns; i++) {
-            if (i > 1)
-                System.out.print(",  ");
-            System.out.print(metaData.getColumnName(i));
+            if (i > 1) System.out.print(" | "); // Add a separator between columns
+            System.out.printf("%-20s", metaData.getColumnName(i)); // Left-align with a fixed width
         }
         System.out.println();
+        System.out.println("-".repeat(numColumns * 23)); // Add a separator line
     }
-
+    
     // Print the attribute values for all tuples in the result
     public void printRecords(ResultSet resultSet, int numColumns) throws SQLException {
-        String columnValue;
+        for (int i = 1; i <= numColumns; i++) {
+            if (i > 1) System.out.print(" | "); // Add a separator between columns
+            String columnValue = resultSet.getString(i);
+            System.out.printf("%-20s", columnValue != null ? columnValue : "NULL"); // Left-align with a fixed width
+        }
+        System.out.println();
         while (resultSet.next()) {
             for (int i = 1; i <= numColumns; i++) {
-                if (i > 1)
-                    System.out.print(",  ");
-                columnValue = resultSet.getString(i);
-                System.out.print(columnValue);
+                if (i > 1) System.out.print(" | "); // Add a separator between columns
+                String columnValue = resultSet.getString(i);
+                System.out.printf("%-20s", columnValue != null ? columnValue : "NULL"); // Left-align with a fixed width
             }
-            System.out.println("");
+            System.out.println();
         }
     }
 
@@ -237,23 +293,23 @@ public class Bookstore {
     }
 
     // Find All available (not purchased) copies at a given bookstore
-    public void findCopies(String bookstoreName) {
-        String q = "SELECT Book.bookName, Copy.copyID, Copy.price " +
+    public void findCopies(String bookstoreName, String city) {
+        String q = "SELECT Book.bookName, Copy.copyID, Copy.price " + 
                         "FROM Book " +
                         "JOIN Copy ON Book.bookID = Copy.bookID " +
                         "JOIN Bookstore ON Copy.bookstoreID = Bookstore.bookstoreID " +
                         "LEFT JOIN Purchase ON Copy.copyID = Purchase.copyID " + 
                         "WHERE Bookstore.bookstoreName = '" + bookstoreName + "' " +
+                        "AND Bookstore.city = '" + city + "' " +
                         "AND Purchase.copyID IS NULL;";
         query(q);
     }
 
     public void purchcaseCopy(String bookName){        
         if(!this.availableBooksExists(bookName)){
-            System.out.println("This book isn't available");
+            System.out.println("    This book isn't available or does not exist in the database.");
             return;
-        }
-        else{
+        } else {
             int copyID;
 
             this.getAllAvailableBooks(bookName);
@@ -267,6 +323,7 @@ public class Bookstore {
 
     public void listPurchases(String bookstoreName, String city){
         if(!this.bookstoreExists(bookstoreName, city)){
+            System.out.println("    Couldn't find bookstore with name: " + bookstoreName + " in city: " + city + ".");
             return;
         }
         else {
@@ -297,11 +354,16 @@ public class Bookstore {
         if(this.purchaseExists(purchaseID)){
             String q2 = "DELETE FROM Purchase WHERE purchaseID = " +  purchaseID + ";";
             update(q2);
+        } else {
+            // If the purchase ID does not exist, print an error message
+            System.out.println("    Couldn't find purchase with ID: " + purchaseID + ".");
+            return;
         }
     }
 
     public void addBook(String bookstoreName, String city){
         if(!this.bookstoreExists(bookstoreName, city)){
+            System.out.println("    Couldn't find bookstore with name: " + bookstoreName + " in city: " + city + ".");
             return;
         }
         else {
@@ -311,22 +373,22 @@ public class Bookstore {
             String bookName, author, publicationDate, type;
             
             System.out.println("Please put the book you want to add:");
-            System.out.println("Enter the book id: ");
-            bookID = scanner.nextInt();
-            scanner.nextLine();
             System.out.println("Enter the book name: ");
             bookName = scanner.nextLine(); 
             System.out.println("Enter the author: ");
             author = scanner.nextLine(); 
             System.out.println("Enter the publication date(YYYY-MM-DD): ");
             publicationDate = scanner.nextLine(); 
-            System.out.println("Enter the book type: ");
+            System.out.println("Enter the book type(non or fic): ");
             type = scanner.nextLine(); 
+            System.out.println("Enter the copy price: ");
+            price = scanner.nextDouble();
+            System.out.println("Enter the book id: ");
+            bookID = scanner.nextInt();
+            scanner.nextLine();
             System.out.println("Enter the copy id: ");
             copyID = scanner.nextInt();
             scanner.nextLine();
-            System.out.println("Enter the copy price: ");
-            price = scanner.nextDouble();
             scanner.nextLine();
 
             String q1 = "INSERT INTO Book (bookID, bookName, author, publicationDate, type) " +
@@ -336,11 +398,22 @@ public class Bookstore {
             String q2 = "INSERT INTO Copy (copyID, bookstoreID, bookID, price) " +
                         "VALUES(" + copyID + ", " + bookstoreID + ", " + bookID + ", " + price + ")";
             update(q2);
+
+            // Print success message
+            System.out.println("Successfully added the book: " + bookName + " with Book ID: " + bookID + " and Copy ID: " + copyID + 
+                " to the bookstore: " + bookstoreName + " in city: " + city + ".");
+            //book table
+            String q3 = "SELECT * FROM Book;";
+            query(q3); // to show the book table after insertion
+            String q4 = "SELECT * FROM Copy;";
+            query(q4); // to show the copy table after insertion
         }
     }
 
     public void addPurchase(int copyID){
         if(!this.copyExists(copyID) && !this.availableCopyExists(copyID)){
+            // If the copy ID does not exist or is not available for purchase, print an error message
+            System.out.println("    Couldn't find copy with ID: " + copyID + " or it is not available for purchase.");
             return;
         }
         else{
